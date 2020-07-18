@@ -36,4 +36,4 @@ class Appointment(Base):
     end_dt = Column(DateTime)
     doctor_id = Column(Integer, ForeignKey('doctors.id'))
 
-    doctor = relationship('Doctor', back_populates='doctors')
+    doctor = relationship('Doctor', back_populates='appointments')
