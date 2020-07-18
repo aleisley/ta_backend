@@ -5,7 +5,6 @@ from app import schemas
 
 
 def get_doctor(db: Session, doctor_id: int):
-    # return db.query(models.Doctor).filter(models.Doctor.id == doctor_id).first()
     return db.query(models.Doctor).get(doctor_id)
 
 

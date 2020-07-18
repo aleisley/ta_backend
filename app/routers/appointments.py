@@ -7,10 +7,6 @@ from sqlalchemy.orm import Session
 
 from app.database import engine
 
-# from app.main import get_db
-# from ..models import models
-# from ..models import schemas
-
 # from ..main import get_db
 from ..database import SessionLocal
 from .. import crud
@@ -48,8 +44,13 @@ def post_appointment(
     appointment: schemas.AppointmentCreate,
     db: Session = Depends(get_db)
 ):
-    appointment = crud.create_appointment(db, appointment)
-    return appointment
+    # breakpoint()
+    # if appointment.start_dt > appointment.end_dt:
+    #     raise HTTPException(
+    #         status_code=404, detail='Start date is greater than end date.')
+
+    db_appointment = crud.create_appointment(db, appointment)
+    return db_appointment
 
 
 @router.put('/{appointment_id}', response_model=schemas.Appointment)
@@ -58,6 +59,10 @@ def change_appointment(
     appointment_id: int,
     db: Session = Depends(get_db)
 ):
+    # if appointment.start_dt > appointment.end_dt:
+    #     raise HTTPException(
+    #         status_code=404, detail='Start date is greater than end date.')
+
     appointment = crud.update_appointment(db, appointment, appointment_id)
     return appointment
 

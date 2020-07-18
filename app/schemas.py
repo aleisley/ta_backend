@@ -6,6 +6,10 @@ from typing import Optional
 from pydantic import BaseModel
 from pydantic import EmailStr
 from pydantic import Field
+from pydantic import validator
+from pydantic import ValidationError
+
+from . import constants
 
 
 class AppointmentBase(BaseModel):
@@ -16,6 +20,30 @@ class AppointmentBase(BaseModel):
     start_dt: datetime
     end_dt: datetime
     doctor_id: int
+
+    @validator('end_dt')
+    def validate_datetimes(cls, dt, values):
+
+        if values['start_dt'].weekday() != dt.weekday():
+            raise ValueError('Appointment not within the same date.')
+
+        if dt.weekday() == constants.NO_APPOINTMENT_WEEKDAY_CODE:
+            raise ValueError('Appointments not available on Sundays.')
+
+        if values['start_dt'] > dt:
+            raise ValueError('End time should be greater than start time.')
+
+        # create start and end datetime for comparisons
+        start_of_day = dt.replace(hour=9, minute=0, second=0, microsecond=0)
+        end_of_day = start_of_day.replace(hour=17)
+
+        if not start_of_day <= values['start_dt'] <= end_of_day:
+            raise ValueError('Start time should be within permissible hours.')
+
+        if not start_of_day <= dt <= end_of_day:
+            raise ValueError('End time should be within permissible hours.')
+
+        return dt
 
 
 class Appointment(AppointmentBase):
