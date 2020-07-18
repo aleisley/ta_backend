@@ -35,9 +35,33 @@ def fetch_appointments(
     return appointments
 
 
-@router.get('{appointment_id}/', response_model=schemas.Appointment)
+@router.get('/{appointment_id}', response_model=schemas.Appointment)
 def fetch_appointment(appointment_id: int, db: Session = Depends(get_db)):
     appointment = crud.get_appointment(db, appointment_id=appointment_id)
     if not appointment:
         raise HTTPException(status_code=404, detail='Appointment not found.')
     return appointment
+
+
+@router.post('/', response_model=schemas.Appointment)
+def post_appointment(
+    appointment: schemas.AppointmentCreate,
+    db: Session = Depends(get_db)
+):
+    appointment = crud.create_appointment(db, appointment)
+    return appointment
+
+
+@router.put('/{appointment_id}', response_model=schemas.Appointment)
+def change_appointment(
+    appointment: schemas.AppointmentCreate,
+    appointment_id: int,
+    db: Session = Depends(get_db)
+):
+    appointment = crud.update_appointment(db, appointment, appointment_id)
+    return appointment
+
+
+@router.delete('/{appointment_id}', status_code=204)
+def destroy_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    crud.delete_appointment(db, appointment_id)

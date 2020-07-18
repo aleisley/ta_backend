@@ -50,3 +50,22 @@ def create_appointment(db: Session, appointment: schemas.Appointment):
     db.commit()
     db.refresh(db_appointment)
     return db_appointment
+
+
+def update_appointment(
+    db: Session,
+    appointment: schemas.Appointment,
+    appointment_id: int
+):
+    db_appointment = get_appointment(db, appointment_id)
+    for key, value in appointment:
+        setattr(db_appointment, key, value)
+    db.commit()
+    db.refresh(db_appointment)
+    return db_appointment
+
+
+def delete_appointment(db: Session, appointment_id: int):
+    db_appointment = get_doctor(db, appointment_id)
+    db.delete(db_appointment)
+    db.commit()
