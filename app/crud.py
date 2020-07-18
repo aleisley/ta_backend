@@ -1,9 +1,13 @@
-from sqlalchemy.orm import Session
+import logging
 
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from app import models
 from app import schemas
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_doctor(db: Session, doctor_id: int):
@@ -110,6 +114,28 @@ def update_appointment(
     appointment_id: int
 ):
     db_appointment = get_appointment(db, appointment_id)
+    if db_appointment.doctor_id != appointment.doctor_id:
+        db_doctor = get_doctor(db, appointment.doctor_id)
+        logger.info(
+            f'The appointment doctor id will change from '
+            f'{db_appointment.doctor_id} to {db_doctor.id}.'
+        )
+    else:
+        db_doctor = get_doctor(db, db_appointment.doctor_id)
+        logger.info(f'The appointment doctor id is unchanged.')
+
+    for app in db_doctor.appointments:
+        if app.id == db_appointment.id:
+            continue
+        if (
+            app.end_dt >= appointment.start_dt and
+            app.start_dt <= appointment.end_dt
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail='Overlapping appointment times.'
+            )
+
     for key, value in appointment:
         setattr(db_appointment, key, value)
     db.commit()
