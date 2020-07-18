@@ -6,10 +6,8 @@ from typing import Optional
 from pydantic import BaseModel
 from pydantic import EmailStr
 from pydantic import validator
-from pydantic import ValidationError
 
 from . import constants
-from . import crud
 
 
 class AppointmentBase(BaseModel):
@@ -48,10 +46,6 @@ class AppointmentBase(BaseModel):
             raise ValueError('End time should be within permissible hours.')
 
         return dt
-
-    # @validator('doctor_id')
-    # def validate_doctor_id(cls, doctor_id):
-    #     db_doctor = crud.get_doctor()
 
 
 class Appointment(AppointmentBase):

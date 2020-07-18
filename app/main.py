@@ -1,15 +1,23 @@
 from fastapi import FastAPI
 
 from .database import engine
+from .database import SessionLocal
 from .models import Base
-# from app.routers.appointments.router import router as appointment_router
 from .routers.appointments import router as appointment_router
 from .routers.doctors import router as doctor_router
-from app.database import SessionLocal
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 app.include_router(
     appointment_router,

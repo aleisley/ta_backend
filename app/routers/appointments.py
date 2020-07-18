@@ -4,36 +4,24 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlite3 import IntegrityError
 
-from app.database import engine
-
-# from ..main import get_db
-from ..database import SessionLocal
-from .. import crud
-from .. import schemas
-from .. import models
+from app import crud
+from app import schemas
+from app.database import get_db
 
 
 router = APIRouter()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 @router.get('/', response_model=List[schemas.Appointment])
-def fetch_appointments(
+def get_appointments(
         skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     appointments = crud.get_appointments(db, skip=skip, limit=limit)
     return appointments
 
 
 @router.get('/{appointment_id}/', response_model=schemas.Appointment)
-def fetch_appointment(appointment_id: int, db: Session = Depends(get_db)):
+def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
     appointment = crud.get_appointment(db, appointment_id=appointment_id)
     if not appointment:
         raise HTTPException(status_code=404, detail='Appointment not found.')
@@ -60,5 +48,5 @@ def change_appointment(
 
 
 @router.delete('/{appointment_id}/', status_code=204)
-def destroy_appointment(appointment_id: int, db: Session = Depends(get_db)):
+def delete_appointment(appointment_id: int, db: Session = Depends(get_db)):
     crud.delete_appointment(db, appointment_id)
