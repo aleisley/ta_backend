@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlite3 import IntegrityError
 
 from app import models
 from app import schemas

@@ -5,11 +5,11 @@ from typing import Optional
 
 from pydantic import BaseModel
 from pydantic import EmailStr
-from pydantic import Field
 from pydantic import validator
 from pydantic import ValidationError
 
 from . import constants
+from . import crud
 
 
 class AppointmentBase(BaseModel):
@@ -23,6 +23,10 @@ class AppointmentBase(BaseModel):
 
     @validator('end_dt')
     def validate_datetimes(cls, dt, values):
+
+        # return immediately since format of start date is probably wrong.
+        if 'start_dt' not in values:
+            return dt
 
         if values['start_dt'].weekday() != dt.weekday():
             raise ValueError('Appointment not within the same date.')
@@ -44,6 +48,10 @@ class AppointmentBase(BaseModel):
             raise ValueError('End time should be within permissible hours.')
 
         return dt
+
+    # @validator('doctor_id')
+    # def validate_doctor_id(cls, doctor_id):
+    #     db_doctor = crud.get_doctor()
 
 
 class Appointment(AppointmentBase):

@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlite3 import IntegrityError
 
 from app.database import engine
 
@@ -44,11 +45,6 @@ def post_appointment(
     appointment: schemas.AppointmentCreate,
     db: Session = Depends(get_db)
 ):
-    # breakpoint()
-    # if appointment.start_dt > appointment.end_dt:
-    #     raise HTTPException(
-    #         status_code=404, detail='Start date is greater than end date.')
-
     db_appointment = crud.create_appointment(db, appointment)
     return db_appointment
 
@@ -59,10 +55,6 @@ def change_appointment(
     appointment_id: int,
     db: Session = Depends(get_db)
 ):
-    # if appointment.start_dt > appointment.end_dt:
-    #     raise HTTPException(
-    #         status_code=404, detail='Start date is greater than end date.')
-
     appointment = crud.update_appointment(db, appointment, appointment_id)
     return appointment
 
