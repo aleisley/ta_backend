@@ -1,4 +1,6 @@
+from datetime import date
 from typing import List
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -14,7 +16,12 @@ router = APIRouter()
 
 @router.get('/', response_model=List[schemas.Appointment])
 def get_appointments(
-        skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    skip: int = 0,
+    limit: int = 100,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    db: Session = Depends(get_db)
+):
     """
     Router to get a list of `Appointment` objects.
 
@@ -24,7 +31,8 @@ def get_appointments(
     - **limit** (int, optional): Hints where to end during pagination.
         Defaults to 100.
     """
-    db_appointments = crud.get_appointments(db, skip=skip, limit=limit)
+    db_appointments = crud.get_appointments(
+        db, skip=skip, limit=limit, start_date=start_date, end_date=end_date)
     return db_appointments
 
 

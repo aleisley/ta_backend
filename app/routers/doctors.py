@@ -34,10 +34,21 @@ def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
     Gets the `Doctor` object based with the designated appointment_id
 
     Args:
-    - **doctor_id (int)**: PK of the object.
+    - **doctor_id (int)**: PK of the doctor object.
     """
     db_doctor = crud.get_doctor(db=db, doctor_id=doctor_id)
     return db_doctor
+
+
+@router.get('/{doctor_id}/appointments/', response_model=schemas.Appointment)
+def get_doctor_appointments(doctor_id: int, db: Session = Depends(get_db)):
+    """
+    Gets all the `Appointment` objects related to this specific doctor.
+
+    Args:
+    - **doctor_id (int)**: PK of the doctor object.
+    """
+    pass
 
 
 @router.post('/', response_model=schemas.Doctor)

@@ -1,4 +1,6 @@
 import logging
+from datetime import date
+from datetime import datetime
 
 from fastapi import HTTPException
 from sqlalchemy import exc
@@ -139,7 +141,13 @@ def get_appointment(db: Session, appointment_id: int):
     return db_appointment
 
 
-def get_appointments(db: Session, skip: int = 0, limit: int = 100):
+def get_appointments(
+    db: Session,
+    start_date: date,
+    end_date: date,
+    skip: int = 0,
+    limit: int = 100
+):
     """
     Returns a queryset of appointments.
 
@@ -150,7 +158,16 @@ def get_appointments(db: Session, skip: int = 0, limit: int = 100):
     Returns:
         List[Appointment]: A list of Appointment objects
     """
-    return db.query(models.Appointment).offset(skip).limit(limit).all()
+    db_appointments = db.query(models.Appointment)
+    if start_date:
+        start_dt = datetime(start_date.year, start_date.month, start_date.day)
+        db_appointments = db_appointments.filter(
+            models.Appointment.start_dt >= start_dt)
+    if end_date:
+        end_dt = datetime(end_date.year, end_date.month, end_date.day)
+        db_appointments = db_appointments.filter(
+            models.Appointment.end_dt <= end_dt)
+    return db_appointments.offset(skip).limit(limit).all()
 
 
 def create_appointment(db: Session, appointment: schemas.Appointment):
