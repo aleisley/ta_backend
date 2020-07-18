@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlite3 import IntegrityError
 
+from fastapi import HTTPException
+
 from app import models
 from app import schemas
 
@@ -45,6 +47,17 @@ def get_appointments(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_appointment(db: Session, appointment: schemas.Appointment):
+    db_doctor = get_doctor(db, appointment.doctor_id)
+    for app in db_doctor.appointments:
+        if (
+            app.end_dt >= appointment.start_dt and
+            app.start_dt <= appointment.end_dt
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail='Overlapping appointment times.'
+            )
+
     db_appointment = models.Appointment(**appointment.dict())
     db.add(db_appointment)
     db.commit()

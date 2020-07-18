@@ -32,7 +32,7 @@ def fetch_appointments(
     return appointments
 
 
-@router.get('/{appointment_id}', response_model=schemas.Appointment)
+@router.get('/{appointment_id}/', response_model=schemas.Appointment)
 def fetch_appointment(appointment_id: int, db: Session = Depends(get_db)):
     appointment = crud.get_appointment(db, appointment_id=appointment_id)
     if not appointment:
@@ -49,7 +49,7 @@ def post_appointment(
     return db_appointment
 
 
-@router.put('/{appointment_id}', response_model=schemas.Appointment)
+@router.put('/{appointment_id}/', response_model=schemas.Appointment)
 def change_appointment(
     appointment: schemas.AppointmentCreate,
     appointment_id: int,
@@ -59,6 +59,6 @@ def change_appointment(
     return appointment
 
 
-@router.delete('/{appointment_id}', status_code=204)
+@router.delete('/{appointment_id}/', status_code=204)
 def destroy_appointment(appointment_id: int, db: Session = Depends(get_db)):
     crud.delete_appointment(db, appointment_id)
