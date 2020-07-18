@@ -16,16 +16,29 @@ router = APIRouter()
 @router.get('/', response_model=List[schemas.Appointment])
 def get_appointments(
         skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    appointments = crud.get_appointments(db, skip=skip, limit=limit)
-    return appointments
+    """
+    Router to get a list of `Appointment` objects.
+
+    Args:
+    - **skip** (int, optional): Hints where to start during pagination.
+        Defaults to 0.
+    - **limit** (int, optional): Hints where to end during pagination.
+        Defaults to 100.
+    """
+    db_appointments = crud.get_appointments(db, skip=skip, limit=limit)
+    return db_appointments
 
 
 @router.get('/{appointment_id}/', response_model=schemas.Appointment)
 def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
-    appointment = crud.get_appointment(db, appointment_id=appointment_id)
-    if not appointment:
-        raise HTTPException(status_code=404, detail='Appointment not found.')
-    return appointment
+    """
+    Gets the `Appointment` object based with the designated appointment_id
+
+    Args:
+    - **appointment_id (int)**: PK of the object.
+    """
+    db_appointment = crud.get_appointment(db, appointment_id=appointment_id)
+    return db_appointment
 
 
 @router.post('/', response_model=schemas.Appointment)
@@ -33,6 +46,17 @@ def post_appointment(
     appointment: schemas.AppointmentCreate,
     db: Session = Depends(get_db)
 ):
+    """
+    Create an `Appointment` with all the information in the request body.
+
+    Args:
+    - **patient_name (srt)**: Name of the patient.
+    - **comment (str)**: Other comments for this appointment.
+    - **start_dt (datetime)**: The start date and time of appointment.
+    - **end_dt (datetime)**: The end date and time of appointment.
+    - **doctor_id (int)**: The pk of the `Doctor` related to this specific
+        appointment.
+    """
     db_appointment = crud.create_appointment(db, appointment)
     return db_appointment
 
@@ -43,10 +67,28 @@ def change_appointment(
     appointment_id: int,
     db: Session = Depends(get_db)
 ):
-    appointment = crud.update_appointment(db, appointment, appointment_id)
-    return appointment
+    """
+    Update the `Appointment` object with all the information in the
+    request body.
+
+    Args:
+    - **patient_name (str)**: Name of the patient.
+    - **comment (str)**: Other comments for this appointment.
+    - **start_dt (datetime)**: The start date and time of appointment.
+    - **end_dt (datetime)**: The end date and time of appointment.
+    - **doctor_id (int)**: The pk of the `Doctor` related to this specific
+        appointment.
+    """
+    db_appointment = crud.update_appointment(db, appointment, appointment_id)
+    return db_appointment
 
 
 @router.delete('/{appointment_id}/', status_code=204)
 def delete_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    """
+    Deletes the `Appointment` object.
+
+    Args:
+    - **appointment_id (str)**: PK of the appointment object.
+    """
     crud.delete_appointment(db, appointment_id)

@@ -38,14 +38,54 @@ def delete_doctor(db: Session, doctor_id: int):
 
 
 def get_appointment(db: Session, appointment_id: int):
-    return db.query(models.Appointment).get(appointment_id)
+    """
+    Return an appointment instance
+
+    Args:
+        appointment_id (int): pk of the appointment
+
+    Raises:
+        HTTPException: Raises 404 if no appointment object with the
+            given appointment_id is found.
+
+    Returns:
+        Appointment: the appointment instance
+    """
+    db_appointment = db.query(models.Appointment).get(appointment_id)
+    if not db_appointment:
+        raise HTTPException(status_code=404, detail='Appointment not found.')
+    return db_appointment
 
 
 def get_appointments(db: Session, skip: int = 0, limit: int = 100):
+    """
+    Returns a queryset of appointments.
+
+    Args:
+        skip (int, optional): Start of pagination. Defaults to 0.
+        limit (int, optional): End of pagination. Defaults to 100.
+
+    Returns:
+        List[Appointment]: A list of Appointment objects
+    """
     return db.query(models.Appointment).offset(skip).limit(limit).all()
 
 
 def create_appointment(db: Session, appointment: schemas.Appointment):
+    """
+    Creates the object based on the given appointment schema.
+
+    Args:
+        appointment (schemas.Appointment): Comes from the body of the
+            POST request.
+
+    Raises:
+        HTTPException: Raises 422 if there are overlapping (overbooked)
+            appointment times.
+
+    Returns:
+        Appointment: An appointment instance.
+    """
     db_doctor = get_doctor(db, appointment.doctor_id)
     for app in db_doctor.appointments:
         if (

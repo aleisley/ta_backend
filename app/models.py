@@ -21,7 +21,11 @@ class Doctor(Base):
     last_name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
 
-    appointments = relationship('Appointment', back_populates='doctor')
+    appointments = relationship(
+        'Appointment',
+        back_populates='doctor',
+        passive_deletes=True
+    )
 
 
 class Appointment(Base):
@@ -34,6 +38,6 @@ class Appointment(Base):
     comment = Column(Text, nullable=True)
     start_dt = Column(DateTime, default=datetime.utcnow)
     end_dt = Column(DateTime)
-    doctor_id = Column(Integer, ForeignKey('doctors.id'))
+    doctor_id = Column(Integer, ForeignKey('doctors.id', ondelete='CASCADE'))
 
     doctor = relationship('Doctor', back_populates='appointments')
