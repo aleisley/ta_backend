@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi import APIRouter
 from fastapi import Depends
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app import crud
@@ -42,7 +41,7 @@ def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
 
 
 @router.post('/', response_model=schemas.Appointment)
-def post_appointment(
+def create_appointment(
     appointment: schemas.AppointmentCreate,
     db: Session = Depends(get_db)
 ):
@@ -72,6 +71,7 @@ def change_appointment(
     request body.
 
     Args:
+    - **appointment_id (int)**: The pk of the appointment object.
     - **patient_name (str)**: Name of the patient.
     - **comment (str)**: Other comments for this appointment.
     - **start_dt (datetime)**: The start date and time of appointment.
