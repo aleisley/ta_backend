@@ -93,8 +93,8 @@ def create_appointment(db: Session, appointment: schemas.Appointment):
     db_doctor = get_doctor(db, appointment.doctor_id)
     for app in db_doctor.appointments:
         if (
-            app.end_dt >= appointment.start_dt and
-            app.start_dt <= appointment.end_dt
+            app.end_dt > appointment.start_dt and
+            app.start_dt < appointment.end_dt
         ):
             raise HTTPException(
                 status_code=422,
@@ -127,9 +127,10 @@ def update_appointment(
     for app in db_doctor.appointments:
         if app.id == db_appointment.id:
             continue
+
         if (
-            app.end_dt >= appointment.start_dt and
-            app.start_dt <= appointment.end_dt
+            app.end_dt > appointment.start_dt and
+            app.start_dt < appointment.end_dt
         ):
             raise HTTPException(
                 status_code=422,
