@@ -1,4 +1,6 @@
+from datetime import date
 from typing import List
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -36,19 +38,37 @@ def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
     Args:
     - **doctor_id (int)**: PK of the doctor object.
     """
-    db_doctor = crud.get_doctor(db=db, doctor_id=doctor_id)
+    db_doctor = crud.get_doctor(db, doctor_id)
     return db_doctor
 
 
-@router.get('/{doctor_id}/appointments/', response_model=schemas.Appointment)
-def get_doctor_appointments(doctor_id: int, db: Session = Depends(get_db)):
+@router.get(
+    '/{doctor_id}/appointments/',
+    response_model=List[schemas.Appointment]
+)
+def get_doctor_appointments(
+    skip: int = 0,
+    limit: int = 100,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    doctor_id: int = None,
+    db: Session = Depends(get_db)
+):
     """
     Gets all the `Appointment` objects related to this specific doctor.
 
     Args:
     - **doctor_id (int)**: PK of the doctor object.
     """
-    pass
+    db_appointments = crud.get_appointments(
+        db=db,
+        doctor_id=doctor_id,
+        start_date=start_date,
+        end_date=end_date,
+        skip=skip,
+        limit=limit
+    )
+    return db_appointments
 
 
 @router.post('/', response_model=schemas.Doctor)

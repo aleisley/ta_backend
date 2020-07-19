@@ -143,10 +143,11 @@ def get_appointment(db: Session, appointment_id: int):
 
 def get_appointments(
     db: Session,
-    start_date: date,
-    end_date: date,
+    start_date: date = None,
+    end_date: date = None,
     skip: int = 0,
-    limit: int = 100
+    limit: int = 100,
+    doctor_id: int = None
 ):
     """
     Returns a queryset of appointments.
@@ -154,19 +155,30 @@ def get_appointments(
     Args:
         skip (int, optional): Start of pagination. Defaults to 0.
         limit (int, optional): End of pagination. Defaults to 100.
+        start_date (int, optional): Start date to filter appointments.
+        end_date (int, optional): End date to filter appointments.
+        doctor_id (int, optional): Filter appointments based on doctor_id.
 
     Returns:
         List[Appointment]: A list of Appointment objects
     """
+
     db_appointments = db.query(models.Appointment)
+
+    if doctor_id:
+        db_appointments = db_appointments.filter(
+            models.Appointment.doctor_id == doctor_id)
+
     if start_date:
         start_dt = datetime(start_date.year, start_date.month, start_date.day)
         db_appointments = db_appointments.filter(
             models.Appointment.start_dt >= start_dt)
     if end_date:
-        end_dt = datetime(end_date.year, end_date.month, end_date.day)
+        end_dt = datetime(
+            end_date.year, end_date.month, end_date.day, 23, 59, 59)
         db_appointments = db_appointments.filter(
             models.Appointment.end_dt <= end_dt)
+
     return db_appointments.offset(skip).limit(limit).all()
 
 
