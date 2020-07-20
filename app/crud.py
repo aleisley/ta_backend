@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app import schemas
+from .utils import utc_to_local
 
 
 logger = logging.getLogger(__name__)
@@ -155,8 +156,8 @@ def get_appointments(
     Args:
         skip (int, optional): Start of pagination. Defaults to 0.
         limit (int, optional): End of pagination. Defaults to 100.
-        start_date (int, optional): Start date to filter appointments.
-        end_date (int, optional): End date to filter appointments.
+        start_date (date, optional): Start date to filter appointments.
+        end_date (date, optional): End date to filter appointments.
         doctor_id (int, optional): Filter appointments based on doctor_id.
 
     Returns:
@@ -200,8 +201,8 @@ def create_appointment(db: Session, appointment: schemas.Appointment):
     db_doctor = get_doctor(db, appointment.doctor_id)
     for app in db_doctor.appointments:
         if (
-            app.end_dt > appointment.start_dt and
-            app.start_dt < appointment.end_dt
+            utc_to_local(app.end_dt) > appointment.start_dt and
+            utc_to_local(app.start_dt) < appointment.end_dt
         ):
             raise HTTPException(
                 status_code=422,
@@ -254,8 +255,8 @@ def update_appointment(
             continue
 
         if (
-            app.end_dt > appointment.start_dt and
-            app.start_dt < appointment.end_dt
+            utc_to_local(app.end_dt) > appointment.start_dt and
+            utc_to_local(app.start_dt) < appointment.end_dt
         ):
             raise HTTPException(
                 status_code=422,
@@ -279,6 +280,6 @@ def delete_appointment(db: Session, appointment_id: int):
     Args:
         appointment_id (int): The PK of the appointment object.
     """
-    db_appointment = get_doctor(db, appointment_id)
+    db_appointment = get_appointment(db, appointment_id)
     db.delete(db_appointment)
     db.commit()

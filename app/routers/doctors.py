@@ -71,6 +71,17 @@ def get_doctor_appointments(
     return db_appointments
 
 
+# Todo: delete
+@router.post('/{doctor_id}/appointments/', response_model=schemas.Appointment)
+def create_doctor_appointment(
+    appointment: schemas.AppointmentCreate,
+    doctor_id: int,
+    db: Session = Depends(get_db)
+):
+    # appointment.doctor_id = doctor_id
+    pass
+
+
 @router.post('/', response_model=schemas.Doctor)
 def create_doctor(doctor: schemas.DoctorCreate, db: Session = Depends(get_db)):
     """
